@@ -1,15 +1,23 @@
 import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { email, noteName } = req.body;
+  const session = await unstable_getServerSession(req, res, authOptions);
+
+  if (!session) {
+    return res.status(400).send("No session found");
+  }
+
+  const { noteName } = req.body;
 
   const user = await prisma.user.findUnique({
     where: {
-      email,
+      id: session.user.id,
     },
   });
 

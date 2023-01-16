@@ -1,4 +1,4 @@
-export default async function ProtectedLayout({
+export default async function HomeLayout({
   children,
 }: {
   children: React.ReactNode;

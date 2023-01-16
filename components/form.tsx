@@ -29,7 +29,7 @@ export const Form: React.FC<{ type: "login" | "register" }> = ({ type }) => {
       setLoading(false);
 
       if (res?.ok) {
-        router.push("/protected");
+        router.push("/home");
       } else {
         toast.error(res?.error as string);
       }
