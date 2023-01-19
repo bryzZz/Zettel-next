@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+
 import { signIn } from "next-auth/react";
-import LoadingDots from "@/components/loading-dots";
-import toast from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
+import LoadingDots from "@/components/loading-dots";
 import { Input } from "@/components/shared";
 
 export const Form: React.FC<{ type: "login" | "register" }> = ({ type }) => {

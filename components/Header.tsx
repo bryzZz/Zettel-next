@@ -1,26 +1,21 @@
 "use client";
 
-import { Sidebar } from "@/components/Sidebar";
+import React from "react";
+
 import { signOut, useSession } from "next-auth/react";
 
-export default function Home() {
+export const Header: React.FC<{}> = () => {
   const { data } = useSession();
 
   return (
-    <>
-      <header className="header">
-        <p>{data?.user?.email}</p>
-      </header>
-      <div>
-        <Sidebar />
-      </div>
-
+    <header className="h-14 bg-neutral-800 drop-shadow-md flex justify-end items-center px-6 gap-4">
+      <p>{data?.user?.email}</p>
       <button
         className="text-stone-400 hover:text-stone-200 transition-all"
         onClick={() => signOut()}
       >
-        Goddammit, sign me out!
+        Sign out
       </button>
-    </>
+    </header>
   );
-}
+};

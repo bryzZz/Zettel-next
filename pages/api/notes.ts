@@ -1,6 +1,7 @@
-import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth/next";
+
+import prisma from "@/lib/prisma";
 import { authOptions } from "pages/api/auth/[...nextauth]";
 
 export default async function handler(
@@ -13,27 +14,21 @@ export default async function handler(
     return res.status(400).send("No session found");
   }
 
-  const { noteName } = req.body;
+  const { select: querySelect } = req.query;
+  let select;
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-  });
-
-  if (!user) {
-    return res.status(400).send("User not exists");
+  if (querySelect && typeof querySelect === "string") {
+    select = querySelect
+      .split(",")
+      .reduce((acc, cur) => ({ ...acc, [cur]: true }), {});
   }
 
-  const note = await prisma.note.create({
-    data: {
-      userId: user.id,
-      title: noteName,
-      text: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+  const notes = await prisma.note.findMany({
+    where: {
+      userId: session.user.id,
     },
+    select,
   });
 
-  res.status(200).json(note);
+  return res.status(200).json(notes);
 }

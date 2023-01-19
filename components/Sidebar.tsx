@@ -1,54 +1,50 @@
 "use client";
 
-import { Input } from "@/components/shared";
 import React, { useState } from "react";
+
+import Link from "next/link";
 import useSWR from "swr";
-import { fetcher } from "utils/helpers";
+import { v4 as uuid } from "uuid";
+
+import { Input } from "@/components/shared";
+import { useSWRNoteNames } from "hooks/fetching";
+import { createNewNote, fetcher } from "utils/helpers";
 
 export const Sidebar: React.FC<{}> = () => {
-  const [newNoteName, setNewNoteName] = useState("");
-  const {
-    data: noteNames,
-    isLoading,
-    mutate,
-  } = useSWR<string[]>("/api/notes/names", fetcher);
-
-  const addNewNote = () => {
-    return fetcher("/api/notes/new", {
-      method: "POST",
-      body: {
-        noteName: newNoteName,
-      },
-    });
-  };
+  const [title, setTitle] = useState("");
+  const { data: noteNames, isLoading, mutate } = useSWRNoteNames();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    mutate(() => addNewNote(), {
-      optimisticData: (names) => [...(names || []), newNoteName],
-      populateCache: (newNote, names) => [...(names || []), newNote.title],
+    const newNoteId = uuid();
+
+    mutate(() => createNewNote(newNoteId, title), {
+      optimisticData: (names = []) => [...names, { id: newNoteId, title }],
+      populateCache: (newNote, names = []) => [...names, newNote],
       revalidate: false,
     });
+
+    setTitle("");
   };
 
   return (
-    <div className="max-w-xs">
+    <aside className="basis-80 h-full p-4 bg-neutral-900 border-r border-neutral-800">
       <form onSubmit={handleSubmit}>
         <Input
           label="New note Value"
-          value={newNoteName}
-          onChange={(e) => setNewNoteName(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
       </form>
 
       {isLoading && "Loading..."}
 
-      {noteNames?.map((name) => (
-        <p key={name} className="caret-red-700">
-          {name}
+      {noteNames?.map(({ id, title }) => (
+        <p key={id} className="caret-red-700">
+          <Link href={`/note/${id}`}>{title}</Link>
         </p>
       ))}
-    </div>
+    </aside>
   );
 };

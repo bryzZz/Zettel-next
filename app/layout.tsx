@@ -1,6 +1,6 @@
-import "@/styles/globals.css";
-import Toaster from "@/components/toaster";
+import "./globals.css";
 import { Providers } from "@/components/Providers";
+import Toaster from "@/components/toaster";
 
 export default function RootLayout({
   children,

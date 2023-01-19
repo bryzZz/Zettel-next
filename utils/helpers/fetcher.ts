@@ -1,13 +1,18 @@
-export const fetcher = (
-  input: RequestInfo | URL,
-  init?: Pick<RequestInit, "method"> & { body: object }
-) => {
-  const fetchInit = { method: init?.method } as RequestInit;
+import axios from "axios";
 
-  if (init && init.body) {
-    fetchInit.headers = { "Content-Type": "application/json" };
-    fetchInit.body = JSON.stringify(init.body);
-  }
+export const fetcher = (...args: Parameters<typeof axios.get>) =>
+  axios.get(...args).then((res) => res.data);
 
-  return fetch(input, fetchInit).then((res) => res.json());
-};
+// export const fetcher = (
+//   input: RequestInfo | URL,
+//   init?: Pick<RequestInit, "method"> & { body: object }
+// ) => {
+//   const fetchInit = { method: init?.method } as RequestInit;
+
+//   if (init && init.body) {
+//     fetchInit.headers = { "Content-Type": "application/json" };
+//     fetchInit.body = JSON.stringify(init.body);
+//   }
+
+//   return fetch(input, fetchInit).then((res) => res.json());
+// };
