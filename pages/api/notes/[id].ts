@@ -92,8 +92,6 @@ const updateNote = async (
     return res.status(400).send("User not exists");
   }
 
-  console.log(id, updates);
-
   const note = await prisma.note.update({
     where: { id: id as string },
     data: updates,

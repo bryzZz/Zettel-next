@@ -5,11 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import prisma from "@/lib/prisma";
 import { authOptions } from "pages/api/auth/[...nextauth]";
 
-export default async function NoteLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function NoteLayout(props: { children: React.ReactNode }) {
   const session = await unstable_getServerSession(authOptions);
   const notes = await prisma.note.findMany({
     where: {
@@ -26,7 +22,7 @@ export default async function NoteLayout({
       <Header />
       <div className="flex h-main">
         <Sidebar initialNoteNames={notes} />
-        <main>{children}</main>
+        <main className="w-full">{props.children}</main>
       </div>
     </div>
   );

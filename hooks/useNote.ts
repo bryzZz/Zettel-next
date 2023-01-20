@@ -3,12 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getNote, updateNote } from "utils/helpers";
 
-export const useNote = (id: string) => {
+export const useNote = (initialNote: Note) => {
   const queryClient = useQueryClient();
+
+  const id = initialNote.id;
 
   const res = useQuery<Note>({
     queryKey: ["note", id],
     queryFn: () => getNote(id),
+    initialData: initialNote,
   });
 
   const mutation = useMutation({
