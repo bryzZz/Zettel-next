@@ -43,10 +43,27 @@ const createNote = async (
     return res.status(400).send("User not exists");
   }
 
+  const lastNotePlace = await prisma.note.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      place: true,
+    },
+    orderBy: { place: "asc" },
+    take: -1,
+  });
+
+  const newPlace =
+    typeof lastNotePlace[0]?.place === "number"
+      ? lastNotePlace[0].place + 1
+      : 0;
+
   const note = await prisma.note.create({
     data: {
       id,
       userId: user.id,
+      place: newPlace,
       title,
       text: "",
       createdAt: new Date(),
@@ -62,7 +79,8 @@ const updateNote = async (
   res: NextApiResponse,
   session: Session
 ) => {
-  const { id, ...updates } = req.body;
+  const { id } = req.query;
+  const { ...updates } = req.body;
 
   const user = await prisma.user.findUnique({
     where: {
@@ -74,8 +92,10 @@ const updateNote = async (
     return res.status(400).send("User not exists");
   }
 
+  console.log(id, updates);
+
   const note = await prisma.note.update({
-    where: { id },
+    where: { id: id as string },
     data: updates,
   });
 

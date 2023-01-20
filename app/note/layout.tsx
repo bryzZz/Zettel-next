@@ -1,16 +1,31 @@
+import { unstable_getServerSession } from "next-auth/next";
+
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import prisma from "@/lib/prisma";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
-export default async function HomeLayout({
+export default async function NoteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await unstable_getServerSession(authOptions);
+  const notes = await prisma.note.findMany({
+    where: {
+      userId: session?.user.id,
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  });
+
   return (
     <div className="h-screen bg-neutral-900 text-white">
       <Header />
       <div className="flex h-main">
-        <Sidebar />
+        <Sidebar initialNoteNames={notes} />
         <main>{children}</main>
       </div>
     </div>

@@ -3,27 +3,25 @@
 import React, { useState } from "react";
 
 import Link from "next/link";
-import useSWR from "swr";
 import { v4 as uuid } from "uuid";
 
 import { Input } from "@/components/shared";
-import { useSWRNoteNames } from "hooks/fetching";
-import { createNewNote, fetcher } from "utils/helpers";
+import { useNoteNames } from "hooks";
+import { NoteName } from "types";
 
-export const Sidebar: React.FC<{}> = () => {
+interface SidebarProps {
+  initialNoteNames?: NoteName[];
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ initialNoteNames }) => {
   const [title, setTitle] = useState("");
-  const { data: noteNames, isLoading, mutate } = useSWRNoteNames();
+
+  const { data, isLoading, mutation } = useNoteNames(initialNoteNames);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newNoteId = uuid();
-
-    mutate(() => createNewNote(newNoteId, title), {
-      optimisticData: (names = []) => [...names, { id: newNoteId, title }],
-      populateCache: (newNote, names = []) => [...names, newNote],
-      revalidate: false,
-    });
+    mutation.mutate({ id: uuid(), title });
 
     setTitle("");
   };
@@ -40,7 +38,7 @@ export const Sidebar: React.FC<{}> = () => {
 
       {isLoading && "Loading..."}
 
-      {noteNames?.map(({ id, title }) => (
+      {data?.map(({ id, title }) => (
         <p key={id} className="caret-red-700">
           <Link href={`/note/${id}`}>{title}</Link>
         </p>

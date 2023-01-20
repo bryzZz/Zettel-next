@@ -28,6 +28,9 @@ export default async function handler(
       userId: session.user.id,
     },
     select,
+    orderBy: {
+      place: "desc",
+    },
   });
 
   return res.status(200).json(notes);
