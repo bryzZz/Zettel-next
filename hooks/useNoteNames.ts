@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { NoteName } from "types";
-import { createNote, getNotes } from "utils/helpers";
+import { createNote, deleteNote, getNotes } from "utils/helpers";
 
 export const useNoteNames = (initialData?: NoteName[]) => {
   const queryClient = useQueryClient();
@@ -12,7 +12,7 @@ export const useNoteNames = (initialData?: NoteName[]) => {
     initialData,
   });
 
-  const mutation = useMutation({
+  const createMutation = useMutation({
     mutationFn: createNote,
     onMutate: async (newNote) => {
       await queryClient.cancelQueries({ queryKey: ["noteNames"] });
@@ -42,5 +42,12 @@ export const useNoteNames = (initialData?: NoteName[]) => {
     },
   });
 
-  return Object.assign(res, { mutation });
+  const deleteMutation = useMutation({
+    mutationFn: deleteNote,
+    onSettled: () => {
+      queryClient.invalidateQueries(["noteNames"]);
+    },
+  });
+
+  return Object.assign(res, { createMutation, deleteMutation });
 };

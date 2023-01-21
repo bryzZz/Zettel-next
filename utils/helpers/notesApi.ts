@@ -32,3 +32,7 @@ export const updateNote = ({
 }) => {
   return axios.put(`/api/notes/${id}`, updates).then((res) => res.data);
 };
+
+export const deleteNote = (id: string) => {
+  return axios.delete(`/api/notes/${id}`).then((res) => res.data);
+};

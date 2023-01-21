@@ -1,55 +1,21 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Session } from "next-auth";
 import { unstable_getServerSession } from "next-auth/next";
 
 import prisma from "@/lib/prisma";
 import { authOptions } from "pages/api/auth/[...nextauth]";
 
-const getNote = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  session: Session
-) => {
-  const { id } = req.query;
-
-  if (typeof id !== "string") {
-    return res.status(400).send("No id");
-  }
-
+const getNote = async (userId: string, id: string) => {
   const note = await prisma.note.findFirst({
-    where: {
-      userId: session.user.id,
-      id,
-    },
+    where: { userId, id },
   });
 
-  return res.status(200).json(note);
+  return note;
 };
 
-const createNote = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  session: Session
-) => {
-  const { id, title } = req.body;
-
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-  });
-
-  if (!user) {
-    return res.status(400).send("User not exists");
-  }
-
+const createNote = async (userId: string, id: string, title: string) => {
   const lastNotePlace = await prisma.note.findMany({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      place: true,
-    },
+    where: { userId },
+    select: { place: true },
     orderBy: { place: "asc" },
     take: -1,
   });
@@ -62,7 +28,7 @@ const createNote = async (
   const note = await prisma.note.create({
     data: {
       id,
-      userId: user.id,
+      userId,
       place: newPlace,
       title,
       text: "",
@@ -71,33 +37,24 @@ const createNote = async (
     },
   });
 
-  return res.status(200).json(note);
+  return note;
 };
 
-const updateNote = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  session: Session
-) => {
-  const { id } = req.query;
-  const { ...updates } = req.body;
-
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-  });
-
-  if (!user) {
-    return res.status(400).send("User not exists");
-  }
-
+const updateNote = async (userId: string, id: string, updates: any) => {
   const note = await prisma.note.update({
-    where: { id: id as string },
+    where: { id },
     data: updates,
   });
 
-  return res.status(200).json(note);
+  return note;
+};
+
+const deleteNote = async (userId: string, id: string) => {
+  const note = await prisma.note.delete({
+    where: { id },
+  });
+
+  return note;
 };
 
 export default async function handler(
@@ -110,20 +67,44 @@ export default async function handler(
     return res.status(400).send("No session found");
   }
 
+  const userId = session.user.id;
   const { method } = req;
+  const { id } = req.query;
 
-  switch (method) {
-    case "GET":
-      await getNote(req, res, session);
-      break;
-    case "POST":
-      await createNote(req, res, session);
-      break;
-    case "PUT":
-      await updateNote(req, res, session);
-      break;
-    default:
-      res.setHeader("Allow", ["GET", "POST", "PUT"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    return res.status(400).send("User not exists");
   }
+
+  if (typeof id !== "string") {
+    return res.status(400).send("No id");
+  }
+
+  if (method === "GET") {
+    const note = await getNote(userId, id);
+    return res.status(200).json(note);
+  }
+
+  if (method === "POST") {
+    const { title } = req.body;
+    const note = await createNote(userId, id, title);
+    return res.status(200).json(note);
+  }
+
+  if (method === "PUT") {
+    const { ...updates } = req.body;
+    const note = await updateNote(userId, id, updates);
+    return res.status(200).json(note);
+  }
+
+  if (method === "DELETE") {
+    const note = await deleteNote(userId, id);
+    return res.status(200).json(note);
+  }
+
+  res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
+  return res.status(405).end(`Method ${method} Not Allowed`);
 }

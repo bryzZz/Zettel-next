@@ -1,5 +1,5 @@
-import { Note } from "@prisma/client";
 import { unstable_getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
 
 import { NoteView } from "@/components/NoteView";
 import prisma from "@/lib/prisma";
@@ -18,5 +18,9 @@ export default async function NotePage({ params: { id } }: NotePageProps) {
     },
   });
 
-  return <NoteView initialNote={note as Note} />;
+  if (note === null) {
+    return redirect("/note");
+  }
+
+  return <NoteView initialNote={note} />;
 }
