@@ -9,7 +9,6 @@ import { v4 as uuid } from "uuid";
 import { useNoteNames } from "hooks";
 import { NoteName } from "types";
 
-import { ButtonWithTooltip } from "../shared";
 import { NoteLink } from "./NoteLink";
 
 interface SidebarProps {
@@ -48,17 +47,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ initialNoteNames }) => {
   };
 
   return (
-    <aside className="h-full basis-80 border-r border-neutral-800 bg-neutral-900 p-4">
-      <div className="mb-6 flex items-center justify-end">
-        <ButtonWithTooltip
-          className="text-neutral-600 hover:text-neutral-300"
-          onClick={handleCreateNote}
-          tip="Create note"
-          position="bottom center"
-          offsetY={5}
-        >
-          <BsPencilSquare className="h-5 w-5 fill-current" />
-        </ButtonWithTooltip>
+    <aside className="h-full basis-80 border-r border-r-base-content border-opacity-10 p-4">
+      <div className="mb-2 flex items-center justify-end">
+        <div className="tooltip tooltip-bottom" data-tip="Create note">
+          <button
+            onClick={handleCreateNote}
+            className="rounded p-1 hover:bg-base-content hover:bg-opacity-10"
+          >
+            <BsPencilSquare className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {isLoading && "Loading..."}

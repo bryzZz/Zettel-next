@@ -18,7 +18,7 @@ export default async function NoteLayout(props: { children: React.ReactNode }) {
   });
 
   return (
-    <div className="h-screen bg-neutral-900 text-white">
+    <div className="h-screen">
       <Header />
       <div className="flex h-main">
         <Sidebar initialNoteNames={notes} />

@@ -8,12 +8,9 @@ export const Header: React.FC<{}> = () => {
   const { data } = useSession();
 
   return (
-    <header className="h-14 bg-neutral-800 drop-shadow-md flex justify-end items-center px-6 gap-4">
+    <header className="flex h-14 items-center justify-end gap-4 border-b border-b-base-content border-opacity-10 px-6">
       <p>{data?.user?.email}</p>
-      <button
-        className="text-stone-400 hover:text-stone-200 transition-all"
-        onClick={() => signOut()}
-      >
+      <button className="transition-all" onClick={() => signOut()}>
         Sign out
       </button>
     </header>
